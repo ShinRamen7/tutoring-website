@@ -66,6 +66,14 @@ app.get('/tutors', async (req, res) => {
     res.render('tutors', { tutors });
 });
 
+app.get('/tutor/:id', async (req, res) => {
+    const tutor = await Tutor.findById(req.params.id);
+    if (!tutor) {
+        return res.status(404).send('Tutor not found');
+    }
+    res.render('tutor-profile', { tutor });
+});
+
 // ========== ADMIN AUTH ROUTES ==========
 
 // Admin Login Page

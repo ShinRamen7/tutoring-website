@@ -1,0 +1,26 @@
+<%- include('partials/navbar') %>
+
+<div class="profile-container">
+  <img src="<%= tutor.photoUrl %>" alt="Profile Picture" class="profile-pic">
+  <h1><%= tutor.name %></h1>
+  <h3><%= tutor.university %> - Class of <%= tutor.classYear %></h3>
+  <p><%= tutor.longBio %></p>
+
+  <h2>Specialties</h2>
+  <ul>
+    <% tutor.specialties.forEach(subject => { %>
+      <li><%= subject %></li>
+    <% }) %>
+  </ul>
+
+  <h2>Accepted Schools</h2>
+  <ul>
+    <% tutor.acceptedSchools.forEach(school => { %>
+      <li><%= school %></li>
+    <% }) %>
+  </ul>
+
+  <a href="/tutors">← Back to Tutors</a>
+</div>
+
+<%- include('partials/footer') %>

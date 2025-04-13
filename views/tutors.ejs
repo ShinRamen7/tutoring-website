@@ -22,10 +22,12 @@
 <div class="tutor-grid">
   <% tutors.forEach(tutor => { %>
     <div class="tutor-card">
-      <img src="<%= tutor.photoUrl %>" alt="Tutor Photo">
-      <h2><%= tutor.name %></h2>
-      <h4><%= tutor.university %></h4>
-      <p><%= tutor.bio %></p>
+      <a href="/tutor/<%= tutor._id %>">
+        <img src="<%= tutor.photoUrl %>" alt="Tutor Photo">
+        <h2><%= tutor.name %></h2>
+        <h4><%= tutor.university %> - Class of <%= tutor.classYear %></h4>
+        <p><%= tutor.bio %></p>
+      </a>
     </div>
   <% }) %>
 </div>
