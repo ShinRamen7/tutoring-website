@@ -188,3 +188,10 @@ footer a:hover {
         font-size: 18px;
     }
 }
+
+.tutor-card a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+

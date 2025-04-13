@@ -1,3 +1,5 @@
+<%- include('../partials/admin-navbar') %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,7 +21,12 @@
 <form action="/admin/edit-tutor/<%= tutor._id %>" method="POST">
   <input type="text" name="name" value="<%= tutor.name %>" placeholder="Tutor Name" required><br><br>
   <input type="text" name="university" value="<%= tutor.university %>" placeholder="University" required><br><br>
-  <textarea name="bio" rows="5" required><%= tutor.bio %></textarea><br><br>
+  <input type="text" name="classYear" value="<%= tutor.classYear %>" placeholder="Class Year" required><br><br>
+  <textarea name="bio" rows="3" required><%= tutor.bio %></textarea><br><br>
+  <textarea name="longBio" rows="5" required><%= tutor.longBio %></textarea><br><br>
+  <textarea name="resume" rows="5"><%= tutor.resume %></textarea><br><br>
+  <input type="text" name="specialties" value="<%= tutor.specialties.join(', ') %>" placeholder="Specialties (comma separated)" required><br><br>
+  <input type="text" name="acceptedSchools" value="<%= tutor.acceptedSchools.join(', ') %>" placeholder="Accepted Schools (comma separated)" required><br><br>
   <input type="text" name="photoUrl" value="<%= tutor.photoUrl %>" placeholder="Photo URL" required><br><br>
   <button type="submit">Save Changes</button>
 </form>
@@ -30,16 +37,4 @@
 </html>
 
 
-<footer>
-  <p>© 2025 kkoinonos. All rights reserved.</p>
-  <div>
-    <a href="/" class="footer-link">Home</a> | 
-    <a href="/tutors" class="footer-link">Tutors</a> | 
-    <a href="https://instagram.com/yourusername" target="_blank" class="footer-link">
-      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/instagram-new.png" alt="Instagram" style="vertical-align: middle; width:20px;"/> Instagram
-    </a> | 
-    <a href="https://github.com/yourusername" target="_blank" class="footer-link">
-      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/github.png" alt="GitHub" style="vertical-align: middle; width:20px;"/> GitHub
-    </a>
-  </div>
-</footer>
+<%- include('partials/footer') %>

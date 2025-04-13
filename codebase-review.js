@@ -3,23 +3,7 @@ const path = require("path");
 const { performance } = require("perf_hooks");
 
 const IGNORED_DIRS = ["node_modules", "build", "dist", ".git"];
-const IGNORED_FILES = [
-  ".DS_Store",
-  ".gitignore",
-  "package-lock.json",
-  "yarn.lock",
-];
-const IMPORTANT_EXTENSIONS = [
-  ".js",
-  ".jsx",
-  ".ts",
-  ".tsx",
-  ".py",
-  ".css",
-  ".html",
-  ".md",
-  ".json",
-];
+const IGNORED_FILES = [".DS_Store", ".gitignore", "package-lock.json", "yarn.lock"];
 const FILE_DELIMITER = "\n\n" + "=".repeat(80) + "\n\n";
 
 async function generateTree(directory, prefix = "") {
@@ -41,11 +25,8 @@ async function generateTree(directory, prefix = "") {
 
   for (const [index, file] of files.entries()) {
     if (!IGNORED_FILES.includes(file.name)) {
-      const ext = path.extname(file.name);
-      if (IMPORTANT_EXTENSIONS.includes(ext)) {
-        const isLast = index === files.length - 1;
-        tree += `${prefix}${isLast ? "└── " : "├── "}${file.name}\n`;
-      }
+      const isLast = index === files.length - 1;
+      tree += `${prefix}${isLast ? "└── " : "├── "}${file.name}\n`;
     }
   }
 
@@ -78,12 +59,10 @@ ${"=".repeat(80)}
     "=".repeat(80) +
     "\n\n";
 
-  // Calculate the initial offset dynamically
-  const initialContent =
-    summary + "Directory Structure:\n\n" + tree + "\n" + fileListString;
+  const initialContent = summary + "Directory Structure:\n\n" + tree + "\n" + fileListString;
   const initialOffset = initialContent.split("\n").length;
 
-  let currentLine = initialOffset + 1; // Start after the initial offset
+  let currentLine = initialOffset + 1;
 
   async function processDirectory(dir) {
     const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -94,20 +73,21 @@ ${"=".repeat(80)}
       if (entry.isDirectory() && !IGNORED_DIRS.includes(entry.name)) {
         await processDirectory(fullPath);
       } else if (entry.isFile() && !IGNORED_FILES.includes(entry.name)) {
-        const ext = path.extname(entry.name);
-        if (IMPORTANT_EXTENSIONS.includes(ext)) {
-          const relativePath = path.relative(directory, fullPath);
+        const relativePath = path.relative(directory, fullPath);
+        try {
           const content = await fs.readFile(fullPath, "utf8");
           const lines = content.split("\n").length;
           fileList.push(`${relativePath} (starts at line ${currentLine})`);
           output += `File: ${relativePath} (starts at line ${currentLine})\n\n`;
-          currentLine += 2; // For the header and empty line
+          currentLine += 2;
           output += content;
           currentLine += lines;
           output += FILE_DELIMITER;
           currentLine += FILE_DELIMITER.split("\n").length;
           fileCount++;
           totalLines += lines;
+        } catch (error) {
+          console.error(`❌ Could not read file: ${relativePath} (${error.message})`);
         }
       }
     }
@@ -157,7 +137,7 @@ async function main() {
     const result = await readCodebaseFiles(directory);
     const outputPath = path.join(directory, "codebase_review.txt");
     await fs.writeFile(outputPath, result);
-    console.log(`Codebase contents have been written to ${outputPath}`);
+    console.log(`✅ Codebase contents written to ${outputPath}`);
   } catch (error) {
     console.error("An error occurred:", error);
     process.exit(1);
