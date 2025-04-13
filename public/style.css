@@ -1,14 +1,15 @@
-/* Import a professional font */
+/* Import Poppins font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 /* Base Styles */
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #000000; /* Pure Black */
-    color: #ffffff; /* White Text */
+    background-color: #000000;
+    color: #ffffff;
     margin: 0;
     padding: 0;
     line-height: 1.6;
+    text-align: center;
 }
 
 /* Navbar */
@@ -18,6 +19,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .navbar .logo {
@@ -44,14 +46,19 @@ body {
 
 /* Hero Section */
 .hero {
-    background: url('https://images.unsplash.com/photo-1604537529428-0b8d8c9b5d14?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/2/29/Harvard_University_Widener_Library.jpg') no-repeat center center/cover;
+    height: 100vh;
     text-align: center;
-    padding: 100px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
 }
 
 .hero h1 {
     font-size: 48px;
     color: white;
+    margin-bottom: 20px;
 }
 
 .hero p {
@@ -60,7 +67,7 @@ body {
 }
 
 .hero-btn {
-    margin-top: 20px;
+    margin-top: 30px;
     background-color: white;
     color: black;
     padding: 15px 30px;
@@ -87,17 +94,18 @@ body {
 }
 
 .tutor-card {
-    background-color: #111111;
+    background-color: #1a1a1a;
+    border: 2px solid white;
     padding: 20px;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .tutor-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
 }
 
 .tutor-card img {
@@ -109,30 +117,18 @@ body {
     border: 2px solid white;
 }
 
-.tutor-card h2 {
-    font-size: 22px;
-    margin: 10px 0;
+.tutor-card h2, .tutor-card h4, .tutor-card p {
+    color: white;
 }
 
-.tutor-card h4 {
-    font-size: 16px;
-    color: #bbbbbb;
-}
-
-.tutor-card p {
-    font-size: 14px;
-    color: #cccccc;
-}
-
-/* Profile Page */
+/* Tutor Profile */
 .profile-container {
     max-width: 800px;
     margin: 50px auto;
-    padding: 20px;
-    background-color: #111111;
+    padding: 30px;
+    background-color: #1a1a1a;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
 }
 
 .profile-pic {
@@ -161,17 +157,27 @@ ul li {
     color: #cccccc;
 }
 
-/* Links */
-a {
+/* Footer */
+footer {
+    background-color: #111111;
+    padding: 20px;
     color: white;
-    text-decoration: underline;
+    text-align: center;
+    font-size: 14px;
 }
 
-a:hover {
+footer a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+footer a:hover {
     color: #bbbbbb;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 600px) {
     .hero h1 {
         font-size: 32px;
