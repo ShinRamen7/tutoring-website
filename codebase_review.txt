@@ -1,8 +1,8 @@
 Summary:
   - Directory: .
   - Files processed: 8
-  - Total lines: 729
-  - Duration: 0.01 seconds
+  - Total lines: 748
+  - Duration: 0.02 seconds
 
 ================================================================================
 
@@ -18,17 +18,17 @@ Directory Structure:
 ├── README.md
 ├── codebase-review.js
 ├── package.json
-└── server.js
+├── server.js
 
 Files extracted:
 README.md (starts at line 29)
 codebase-review.js (starts at line 38)
 models/Session.js (starts at line 212)
 models/Tutor.js (starts at line 231)
-package.json (starts at line 250)
-public/style.css (starts at line 278)
-server.js (starts at line 471)
-views/CodeView.js (starts at line 640)
+package.json (starts at line 254)
+public/style.css (starts at line 282)
+server.js (starts at line 480)
+views/CodeView.js (starts at line 657)
 
 ================================================================================
 
@@ -235,22 +235,26 @@ const mongoose = require('mongoose');
 const tutorSchema = new mongoose.Schema({
     name: String,
     university: String,
+    classYear: String,
     bio: String,
-    photoUrl: String // URL for their headshot
+    longBio: String,
+    resume: String,
+    photoUrl: String,
+    specialties: [String],
+    acceptedSchools: [String]
 });
 
 module.exports = mongoose.model('Tutor', tutorSchema);
 
 
-
 ================================================================================
 
-File: package.json (starts at line 250)
+File: package.json (starts at line 254)
 
 {
   "name": "tutoring-website",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
@@ -271,198 +275,203 @@ File: package.json (starts at line 250)
 
 ================================================================================
 
-File: public/style.css (starts at line 278)
+File: public/style.css (starts at line 282)
 
+/* Import Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Base Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff;
-    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    background-color: #000000;
+    color: #ffffff;
     margin: 0;
     padding: 0;
-  }
-  
-  h1 {
-    color: #333;
-    margin-top: 50px;
-  }
-  
-  form {
-    background: white;
-    padding: 20px;
-    margin: 30px auto;
-    display: inline-block;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px gray;
-  }
-  
-  input, button {
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-  
-  a {
-    display: inline-block;
-    margin-top: 20px;
-    text-decoration: none;
-    color: #0066cc;
-  }
-  
-  a:hover {
-    text-decoration: underline;
-  }
-  
+    line-height: 1.6;
+    text-align: center;
+}
 
-  /* Make the form shrink nicely on small screens */
-form {
-    width: 90%;
-    max-width: 400px;
-  }
-  
-  /* Make input fields and button take full width */
-  input, button {
-    width: 90%;
-    max-width: 300px;
-    font-size: 16px;
-  }
-  
-  /* Stack links vertically on small screens */
-  @media (max-width: 600px) {
-    a {
-      display: block;
-      margin: 10px 0;
-      font-size: 18px;
-    }
-  }
-  
-  /* Navbar Styles */
+/* Navbar */
 .navbar {
-    background-color: #333;
-    padding: 10px 20px;
-    color: white;
+    background-color: #111111;
+    padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-  }
-  
-  .navbar .logo {
+}
+
+.navbar .logo {
     font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .navbar .nav-links {
+    font-weight: 600;
+    color: white;
+}
+
+.navbar .nav-links {
     display: flex;
     gap: 20px;
-  }
-  
-  .navbar .nav-links a {
+}
+
+.navbar .nav-links a {
     color: white;
     text-decoration: none;
     font-size: 18px;
-  }
-  
-  .navbar .nav-links a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Make Navbar Mobile Friendly */
-  @media (max-width: 600px) {
-    .navbar {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    
-    .navbar .nav-links {
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    .navbar .nav-links a {
-      padding: 10px 0;
-    }
-  }
-  
-  /* Hero Section */
+    transition: color 0.3s;
+}
+
+.navbar .nav-links a:hover {
+    color: #bbbbbb;
+}
+
+/* Hero Section */
 .hero {
-    background: url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
-    color: white;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/2/29/Harvard_University_Widener_Library.jpg') no-repeat center center/cover;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
     text-align: center;
-    padding: 100px 20px;
-  }
-  
-  .hero h1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+
+.hero h1 {
     font-size: 48px;
-    margin-bottom: 20px;
-  }
-  
-  .hero p {
-    font-size: 24px;
-    margin-bottom: 30px;
-  }
-  
-  .hero-btn {
-    background-color: #ff6600;
     color: white;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 24px;
+    color: #dddddd;
+}
+
+.hero-btn {
+    margin-top: 30px;
+    background-color: white;
+    color: black;
     padding: 15px 30px;
+    border: none;
     font-size: 18px;
-    text-decoration: none;
     border-radius: 30px;
-    transition: background-color 0.3s;
-  }
-  
-  .hero-btn:hover {
-    background-color: #cc5200;
-  }
-  
-  /* Responsive Hero Section */
-  @media (max-width: 600px) {
-    .hero h1 {
-      font-size: 32px;
-    }
-    .hero p {
-      font-size: 18px;
-    }
-  }
-  
-  /* Tutor Cards */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    text-decoration: none;
+}
+
+.hero-btn:hover {
+    background-color: #333333;
+    color: white;
+}
+
+/* Tutor Cards */
 .tutor-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 30px;
-  }
-  
-  .tutor-card {
-    background: white;
+    gap: 30px;
+    padding: 50px;
+    background-color: #0a0a0a;
+}
+
+.tutor-card {
+    background-color: #1a1a1a;
+    border: 2px solid white;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 15px;
     text-align: center;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-  
-  .tutor-card img {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tutor-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.tutor-card img {
     width: 120px;
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 15px;
-  }
-  
-  .tutor-card h2 {
-    margin: 10px 0 5px;
-  }
-  
-  .tutor-card h4 {
-    margin: 0 0 15px;
-    color: gray;
-  }
-  
+    border: 2px solid white;
+}
+
+.tutor-card h2, .tutor-card h4, .tutor-card p {
+    color: white;
+}
+
+/* Tutor Profile */
+.profile-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #1a1a1a;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 3px solid white;
+}
+
+h1, h2, h3 {
+    color: white;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    background: #222222;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    color: #cccccc;
+}
+
+/* Footer */
+footer {
+    background-color: #111111;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+}
+
+footer a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+footer a:hover {
+    color: #bbbbbb;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .hero h1 {
+        font-size: 32px;
+    }
+    .hero p {
+        font-size: 18px;
+    }
+}
+
 
 ================================================================================
 
-File: server.js (starts at line 471)
+File: server.js (starts at line 480)
 
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'password123';
@@ -530,6 +539,14 @@ app.get('/sessions', async (req, res) => {
 app.get('/tutors', async (req, res) => {
     const tutors = await Tutor.find();
     res.render('tutors', { tutors });
+});
+
+app.get('/tutor/:id', async (req, res) => {
+    const tutor = await Tutor.findById(req.params.id);
+    if (!tutor) {
+        return res.status(404).send('Tutor not found');
+    }
+    res.render('tutor-profile', { tutor });
 });
 
 // ========== ADMIN AUTH ROUTES ==========
@@ -629,7 +646,7 @@ app.listen(PORT, () => {
 
 ================================================================================
 
-File: views/CodeView.js (starts at line 640)
+File: views/CodeView.js (starts at line 657)
 
 const fs = require("fs").promises;
 const path = require("path");
@@ -798,5 +815,7 @@ async function main() {
 }
 
 main();
+
+
 
 ================================================================================
