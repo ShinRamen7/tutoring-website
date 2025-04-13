@@ -1,5 +1,251 @@
 Summary:
   - Directory: .
+  - Files processed: 26
+  - Total lines: 2656
+  - Duration: 0.04 seconds
+
+================================================================================
+
+Directory Structure:
+
+├── models/
+│   ├── Session.js
+│   └── Tutor.js
+├── public/
+│   └── style.css
+├── routes/
+│   ├── admin.js
+│   └── user.js
+├── views/
+│   ├── admin/
+│   │   ├── add-tutor.ejs
+│   │   ├── admin-dashboard.ejs
+│   │   └── edit-tutor.ejs
+│   ├── partials/
+│   │   ├── admin-navbar.ejs
+│   │   ├── footer.ejs
+│   │   └── navbar.ejs
+│   ├── CodeView.js
+│   ├── book.ejs
+│   ├── contact.ejs
+│   ├── index.ejs
+│   ├── login.ejs
+│   ├── sessions.ejs
+│   ├── tutor-profile.ejs
+│   └── tutors.ejs
+├── .env
+├── README.md
+├── codebase-review.js
+├── codebase_review.txt
+├── package.json
+├── server.js
+└── tutor-profile.ejs
+
+Files extracted:
+.env (starts at line 50)
+README.md (starts at line 63)
+codebase-review.js (starts at line 72)
+codebase_review.txt (starts at line 227)
+models/Session.js (starts at line 1674)
+models/Tutor.js (starts at line 1693)
+package.json (starts at line 1716)
+public/style.css (starts at line 1744)
+routes/admin.js (starts at line 1949)
+routes/user.js (starts at line 2065)
+server.js (starts at line 2120)
+tutor-profile.ejs (starts at line 2166)
+views/CodeView.js (starts at line 2205)
+views/admin/add-tutor.ejs (starts at line 2381)
+views/admin/admin-dashboard.ejs (starts at line 2430)
+views/admin/edit-tutor.ejs (starts at line 2488)
+views/book.ejs (starts at line 2536)
+views/contact.ejs (starts at line 2579)
+views/index.ejs (starts at line 2617)
+views/login.ejs (starts at line 2659)
+views/partials/admin-navbar.ejs (starts at line 2699)
+views/partials/footer.ejs (starts at line 2715)
+views/partials/navbar.ejs (starts at line 2736)
+views/sessions.ejs (starts at line 2755)
+views/tutor-profile.ejs (starts at line 2804)
+views/tutors.ejs (starts at line 2838)
+
+================================================================================
+
+File: .env (starts at line 50)
+
+MONGO_URI=mongodb+srv://kkoinonos:toODFPv7H4ZPHiy5@tutoring-cluster.9bsi5vj.mongodb.net/?retryWrites=true&w=majority&appName=tutoring-cluster
+
+PORT=3000
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=password123
+
+
+================================================================================
+
+File: README.md (starts at line 63)
+
+# tutoring-website
+
+
+================================================================================
+
+File: codebase-review.js (starts at line 72)
+
+const fs = require("fs").promises;
+const path = require("path");
+const { performance } = require("perf_hooks");
+
+const IGNORED_DIRS = ["node_modules", "build", "dist", ".git"];
+const IGNORED_FILES = [".DS_Store", ".gitignore", "package-lock.json", "yarn.lock"];
+const FILE_DELIMITER = "\n\n" + "=".repeat(80) + "\n\n";
+
+async function generateTree(directory, prefix = "") {
+  let tree = "";
+  const entries = await fs.readdir(directory, { withFileTypes: true });
+  const files = entries.filter((entry) => entry.isFile());
+  const directories = entries.filter((entry) => entry.isDirectory());
+
+  for (const [index, dir] of directories.entries()) {
+    if (!IGNORED_DIRS.includes(dir.name)) {
+      const isLast = index === directories.length - 1 && files.length === 0;
+      tree += `${prefix}${isLast ? "└── " : "├── "}${dir.name}/\n`;
+      tree += await generateTree(
+        path.join(directory, dir.name),
+        `${prefix}${isLast ? "    " : "│   "}`
+      );
+    }
+  }
+
+  for (const [index, file] of files.entries()) {
+    if (!IGNORED_FILES.includes(file.name)) {
+      const isLast = index === files.length - 1;
+      tree += `${prefix}${isLast ? "└── " : "├── "}${file.name}\n`;
+    }
+  }
+
+  return tree;
+}
+
+async function readCodebaseFiles(directory) {
+  let output = "";
+  let fileList = [];
+  let fileCount = 0;
+  let totalLines = 0;
+  const startTime = performance.now();
+
+  // Generate summary and directory structure first
+  const tree = await generateTree(directory);
+  const summary = `Summary:
+  - Directory: ${directory}
+  - Files processed: ${fileCount}
+  - Total lines: ${totalLines}
+  - Duration: 0.00 seconds
+
+${"=".repeat(80)}
+
+`;
+
+  const fileListString =
+    "Files extracted:\n" +
+    fileList.join("\n") +
+    "\n\n" +
+    "=".repeat(80) +
+    "\n\n";
+
+  const initialContent = summary + "Directory Structure:\n\n" + tree + "\n" + fileListString;
+  const initialOffset = initialContent.split("\n").length;
+
+  let currentLine = initialOffset + 1;
+
+  async function processDirectory(dir) {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory() && !IGNORED_DIRS.includes(entry.name)) {
+        await processDirectory(fullPath);
+      } else if (entry.isFile() && !IGNORED_FILES.includes(entry.name)) {
+        const relativePath = path.relative(directory, fullPath);
+        try {
+          const content = await fs.readFile(fullPath, "utf8");
+          const lines = content.split("\n").length;
+          fileList.push(`${relativePath} (starts at line ${currentLine})`);
+          output += `File: ${relativePath} (starts at line ${currentLine})\n\n`;
+          currentLine += 2;
+          output += content;
+          currentLine += lines;
+          output += FILE_DELIMITER;
+          currentLine += FILE_DELIMITER.split("\n").length;
+          fileCount++;
+          totalLines += lines;
+        } catch (error) {
+          console.error(`❌ Could not read file: ${relativePath} (${error.message})`);
+        }
+      }
+    }
+  }
+
+  await processDirectory(directory);
+
+  const endTime = performance.now();
+  const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+  const finalSummary = `Summary:
+  - Directory: ${directory}
+  - Files processed: ${fileCount}
+  - Total lines: ${totalLines}
+  - Duration: ${duration} seconds
+
+${"=".repeat(80)}
+
+`;
+
+  const finalFileListString =
+    "Files extracted:\n" +
+    fileList.join("\n") +
+    "\n\n" +
+    "=".repeat(80) +
+    "\n\n";
+  const finalTree = await generateTree(directory);
+
+  return (
+    finalSummary +
+    "Directory Structure:\n\n" +
+    finalTree +
+    "\n" +
+    finalFileListString +
+    output.trim()
+  );
+}
+
+async function main() {
+  const directory = process.argv[2];
+  if (!directory) {
+    console.error("Please provide a directory path as an argument.");
+    process.exit(1);
+  }
+
+  try {
+    const result = await readCodebaseFiles(directory);
+    const outputPath = path.join(directory, "codebase_review.txt");
+    await fs.writeFile(outputPath, result);
+    console.log(`✅ Codebase contents written to ${outputPath}`);
+  } catch (error) {
+    console.error("An error occurred:", error);
+    process.exit(1);
+  }
+}
+
+main();
+
+
+================================================================================
+
+File: codebase_review.txt (starts at line 227)
+
+Summary:
+  - Directory: .
   - Files processed: 22
   - Total lines: 1267
   - Duration: 0.03 seconds
@@ -1435,6 +1681,1178 @@ File: views/tutors.ejs (starts at line 1406)
     </a>
   </div>
 </footer>
+
+
+================================================================================
+
+================================================================================
+
+File: models/Session.js (starts at line 1674)
+
+const mongoose = require('mongoose');
+
+const sessionSchema = new mongoose.Schema({
+    studentName: String,
+    tutorName: String,
+    date: String,
+    time: String
+});
+
+module.exports = mongoose.model('Session', sessionSchema);
+
+
+
+================================================================================
+
+File: models/Tutor.js (starts at line 1693)
+
+const mongoose = require('mongoose');
+
+const tutorSchema = new mongoose.Schema({
+    name: String,
+    university: String,
+    classYear: String,
+    bio: String,
+    longBio: String,
+    resume: String,
+    photoUrl: String,
+    specialties: [String],
+    acceptedSchools: [String]
+});
+
+module.exports = mongoose.model('Tutor', tutorSchema);
+
+
+================================================================================
+
+File: package.json (starts at line 1716)
+
+{
+  "name": "tutoring-website",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "mongoose": "^8.13.2"
+  }
+}
+
+
+================================================================================
+
+File: public/style.css (starts at line 1744)
+
+/* Import Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Base Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #111111;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+}
+
+.navbar .nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.navbar .nav-links a:hover {
+    color: #bbbbbb;
+}
+
+/* Hero Section */
+.hero {
+    background: url('https://upload.wikimedia.org/wikipedia/commons/2/29/Harvard_University_Widener_Library.jpg') no-repeat center center/cover;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+
+.hero h1 {
+    font-size: 48px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 24px;
+    color: #dddddd;
+}
+
+.hero-btn {
+    margin-top: 30px;
+    background-color: white;
+    color: black;
+    padding: 15px 30px;
+    border: none;
+    font-size: 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    text-decoration: none;
+}
+
+.hero-btn:hover {
+    background-color: #333333;
+    color: white;
+}
+
+/* Tutor Cards */
+.tutor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    padding: 50px;
+    background-color: #0a0a0a;
+}
+
+.tutor-card {
+    background-color: #1a1a1a;
+    border: 2px solid white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tutor-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.tutor-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid white;
+}
+
+.tutor-card h2, .tutor-card h4, .tutor-card p {
+    color: white;
+}
+
+/* Tutor Profile */
+.profile-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #1a1a1a;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 3px solid white;
+}
+
+h1, h2, h3 {
+    color: white;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    background: #222222;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    color: #cccccc;
+}
+
+/* Footer */
+footer {
+    background-color: #111111;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+}
+
+footer a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+footer a:hover {
+    color: #bbbbbb;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .hero h1 {
+        font-size: 32px;
+    }
+    .hero p {
+        font-size: 18px;
+    }
+}
+
+.tutor-card a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+
+
+================================================================================
+
+File: routes/admin.js (starts at line 1949)
+
+const express = require('express');
+const router = express.Router();
+const Tutor = require('../models/Tutor');
+
+// Admin login
+router.get('/login', (req, res) => {
+    res.render('login');
+});
+
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        req.session.loggedIn = true;
+        res.redirect('/admin/dashboard');
+    } else {
+        res.send('Invalid credentials. <a href="/admin/login">Try again</a>');
+    }
+});
+
+// Admin logout
+router.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/admin/login');
+});
+
+// Dashboard
+router.get('/dashboard', async (req, res) => {
+    if (req.session.loggedIn) {
+        const tutors = await Tutor.find();
+        res.render('admin/dashboard', { tutors });
+    } else {
+        res.redirect('/admin/login');
+    }
+});
+
+// Add tutor form
+router.get('/add-tutor', (req, res) => {
+    if (req.session.loggedIn) {
+        res.render('admin/add-tutor');
+    } else {
+        res.redirect('/admin/login');
+    }
+});
+
+// Add tutor POST
+router.post('/add-tutor', async (req, res) => {
+    if (req.session.loggedIn) {
+        const { name, university, classYear, bio, longBio, resume, photoUrl, specialties, acceptedSchools } = req.body;
+        const newTutor = new Tutor({
+            name,
+            university,
+            classYear,
+            bio,
+            longBio,
+            resume,
+            photoUrl,
+            specialties: specialties.split(',').map(item => item.trim()),
+            acceptedSchools: acceptedSchools.split(',').map(item => item.trim())
+        });
+        await newTutor.save();
+        res.redirect('/admin/dashboard');
+    } else {
+        res.redirect('/admin/login');
+    }
+});
+
+// Edit tutor form
+router.get('/edit-tutor/:id', async (req, res) => {
+    if (req.session.loggedIn) {
+        const tutor = await Tutor.findById(req.params.id);
+        res.render('admin/edit-tutor', { tutor });
+    } else {
+        res.redirect('/admin/login');
+    }
+});
+
+// Edit tutor POST
+router.post('/edit-tutor/:id', async (req, res) => {
+    if (req.session.loggedIn) {
+        const { name, university, classYear, bio, longBio, resume, photoUrl, specialties, acceptedSchools } = req.body;
+        await Tutor.findByIdAndUpdate(req.params.id, {
+            name,
+            university,
+            classYear,
+            bio,
+            longBio,
+            resume,
+            photoUrl,
+            specialties: specialties.split(',').map(item => item.trim()),
+            acceptedSchools: acceptedSchools.split(',').map(item => item.trim())
+        });
+        res.redirect('/admin/dashboard');
+    } else {
+        res.redirect('/admin/login');
+    }
+});
+
+// Delete tutor
+router.post('/delete-tutor/:id', async (req, res) => {
+    if (req.session.loggedIn) {
+        await Tutor.findByIdAndDelete(req.params.id);
+        res.redirect('/admin/dashboard');
+    } else {
+        res.redirect('/admin/login');
+    }
+});
+
+module.exports = router;
+
+
+================================================================================
+
+File: routes/user.js (starts at line 2065)
+
+const express = require('express');
+const router = express.Router();
+const Tutor = require('../models/Tutor');
+const Session = require('../models/Session');
+
+// Home page
+router.get('/', (req, res) => {
+    res.render('index');
+});
+
+// Tutors list
+router.get('/tutors', async (req, res) => {
+    const tutors = await Tutor.find();
+    res.render('tutors', { tutors });
+});
+
+// Single tutor detailed profile
+router.get('/tutor/:id', async (req, res) => {
+    const tutor = await Tutor.findById(req.params.id);
+    if (!tutor) return res.status(404).send('Tutor not found');
+    res.render('tutor-profile', { tutor });
+});
+
+// Book a session
+router.get('/book', (req, res) => {
+    res.render('book');
+});
+
+router.post('/book', async (req, res) => {
+    const { studentName, tutorName, date, time } = req.body;
+    const newSession = new Session({ studentName, tutorName, date, time });
+    await newSession.save();
+    res.redirect('/sessions');
+});
+
+// Sessions page
+router.get('/sessions', async (req, res) => {
+    const sessions = await Session.find();
+    res.render('sessions', { sessions });
+});
+
+// Contact page
+router.get('/contact', (req, res) => {
+    res.render('contact');
+});
+
+module.exports = router;
+
+
+================================================================================
+
+File: server.js (starts at line 2120)
+
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const path = require('path');
+
+const userRoutes = require('./routes/user');
+const adminRoutes = require('./routes/admin');
+
+const app = express();
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('✅ MongoDB connected'))
+    .catch((err) => console.log('❌ MongoDB connection error:', err));
+
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'ejs');
+
+// Session Setup
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true
+}));
+
+// Routes
+app.use('/', userRoutes);
+app.use('/admin', adminRoutes);
+
+// Start Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+
+================================================================================
+
+File: tutor-profile.ejs (starts at line 2166)
+
+<%- include('partials/navbar') %>
+
+<div class="profile-container">
+  <img src="<%= tutor.photoUrl %>" alt="Profile Picture" class="profile-pic">
+  <h1><%= tutor.name %></h1>
+  <h3><%= tutor.university %> - Class of <%= tutor.classYear %></h3>
+
+  <h2>About Me</h2>
+  <p><%= tutor.longBio %></p>
+
+  <h2>Resume</h2>
+  <p><%= tutor.resume %></p>
+
+  <h2>Specialties</h2>
+  <ul>
+    <% tutor.specialties.forEach(subject => { %>
+      <li><%= subject %></li>
+    <% }) %>
+  </ul>
+
+  <h2>Accepted Schools</h2>
+  <ul>
+    <% tutor.acceptedSchools.forEach(school => { %>
+      <li><%= school %></li>
+    <% }) %>
+  </ul>
+
+  <a href="/tutors" class="hero-btn">← Back to Tutors</a>
+</div>
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/CodeView.js (starts at line 2205)
+
+const fs = require("fs").promises;
+const path = require("path");
+const { performance } = require("perf_hooks");
+
+const IGNORED_DIRS = ["node_modules", "build", "dist", ".git"];
+const IGNORED_FILES = [
+  ".DS_Store",
+  ".gitignore",
+  "package-lock.json",
+  "yarn.lock",
+];
+const IMPORTANT_EXTENSIONS = [
+  ".js",
+  ".jsx",
+  ".ts",
+  ".tsx",
+  ".py",
+  ".css",
+  ".html",
+  ".md",
+  ".json",
+];
+const FILE_DELIMITER = "\n\n" + "=".repeat(80) + "\n\n";
+
+async function generateTree(directory, prefix = "") {
+  let tree = "";
+  const entries = await fs.readdir(directory, { withFileTypes: true });
+  const files = entries.filter((entry) => entry.isFile());
+  const directories = entries.filter((entry) => entry.isDirectory());
+
+  for (const [index, dir] of directories.entries()) {
+    if (!IGNORED_DIRS.includes(dir.name)) {
+      const isLast = index === directories.length - 1 && files.length === 0;
+      tree += `${prefix}${isLast ? "└── " : "├── "}${dir.name}/\n`;
+      tree += await generateTree(
+        path.join(directory, dir.name),
+        `${prefix}${isLast ? "    " : "│   "}`
+      );
+    }
+  }
+
+  for (const [index, file] of files.entries()) {
+    if (!IGNORED_FILES.includes(file.name)) {
+      const ext = path.extname(file.name);
+      if (IMPORTANT_EXTENSIONS.includes(ext)) {
+        const isLast = index === files.length - 1;
+        tree += `${prefix}${isLast ? "└── " : "├── "}${file.name}\n`;
+      }
+    }
+  }
+
+  return tree;
+}
+
+async function readCodebaseFiles(directory) {
+  let output = "";
+  let fileList = [];
+  let fileCount = 0;
+  let totalLines = 0;
+  const startTime = performance.now();
+
+  // Generate summary and directory structure first
+  const tree = await generateTree(directory);
+  const summary = `Summary:
+  - Directory: ${directory}
+  - Files processed: ${fileCount}
+  - Total lines: ${totalLines}
+  - Duration: 0.00 seconds
+
+${"=".repeat(80)}
+
+`;
+
+  const fileListString =
+    "Files extracted:\n" +
+    fileList.join("\n") +
+    "\n\n" +
+    "=".repeat(80) +
+    "\n\n";
+
+  // Calculate the initial offset dynamically
+  const initialContent =
+    summary + "Directory Structure:\n\n" + tree + "\n" + fileListString;
+  const initialOffset = initialContent.split("\n").length;
+
+  let currentLine = initialOffset + 1; // Start after the initial offset
+
+  async function processDirectory(dir) {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory() && !IGNORED_DIRS.includes(entry.name)) {
+        await processDirectory(fullPath);
+      } else if (entry.isFile() && !IGNORED_FILES.includes(entry.name)) {
+        const ext = path.extname(entry.name);
+        if (IMPORTANT_EXTENSIONS.includes(ext)) {
+          const relativePath = path.relative(directory, fullPath);
+          const content = await fs.readFile(fullPath, "utf8");
+          const lines = content.split("\n").length;
+          fileList.push(`${relativePath} (starts at line ${currentLine})`);
+          output += `File: ${relativePath} (starts at line ${currentLine})\n\n`;
+          currentLine += 2; // For the header and empty line
+          output += content;
+          currentLine += lines;
+          output += FILE_DELIMITER;
+          currentLine += FILE_DELIMITER.split("\n").length;
+          fileCount++;
+          totalLines += lines;
+        }
+      }
+    }
+  }
+
+  await processDirectory(directory);
+
+  const endTime = performance.now();
+  const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+  const finalSummary = `Summary:
+  - Directory: ${directory}
+  - Files processed: ${fileCount}
+  - Total lines: ${totalLines}
+  - Duration: ${duration} seconds
+
+${"=".repeat(80)}
+
+`;
+
+  const finalFileListString =
+    "Files extracted:\n" +
+    fileList.join("\n") +
+    "\n\n" +
+    "=".repeat(80) +
+    "\n\n";
+  const finalTree = await generateTree(directory);
+
+  return (
+    finalSummary +
+    "Directory Structure:\n\n" +
+    finalTree +
+    "\n" +
+    finalFileListString +
+    output.trim()
+  );
+}
+
+async function main() {
+  const directory = process.argv[2];
+  if (!directory) {
+    console.error("Please provide a directory path as an argument.");
+    process.exit(1);
+  }
+
+  try {
+    const result = await readCodebaseFiles(directory);
+    const outputPath = path.join(directory, "codebase_review.txt");
+    await fs.writeFile(outputPath, result);
+    console.log(`Codebase contents have been written to ${outputPath}`);
+  } catch (error) {
+    console.error("An error occurred:", error);
+    process.exit(1);
+  }
+}
+
+main();
+
+
+
+================================================================================
+
+File: views/admin/add-tutor.ejs (starts at line 2381)
+
+<%- include('../partials/admin-navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Tutor</title>
+  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Admin Panel</div>
+        <div class="nav-links">
+          <a href="/admin/dashboard">Dashboard</a>
+          <a href="/admin/add-tutor">Add Tutor</a>
+          <a href="/admin/logout">Logout</a>
+        </div>
+      </nav>
+<h1>Add a New Tutor</h1>
+
+<form action="/admin/add-tutor" method="POST">
+  <input type="text" name="name" placeholder="Tutor Name" required><br><br>
+  <input type="text" name="university" placeholder="University" required><br><br>
+  <input type="text" name="classYear" placeholder="Class Year" required><br><br>
+  <textarea name="bio" placeholder="Short Bio" rows="3" required></textarea><br><br>
+  <textarea name="longBio" placeholder="Long Bio" rows="5" required></textarea><br><br>
+  <textarea name="resume" placeholder="Paste Resume Text" rows="5"></textarea><br><br>
+  <input type="text" name="specialties" placeholder="Specialties (comma separated)" required><br><br>
+  <input type="text" name="acceptedSchools" placeholder="Accepted Schools (comma separated)" required><br><br>
+  <input type="text" name="photoUrl" placeholder="Photo URL" required><br><br>
+  <button type="submit">Add Tutor</button>
+</form>
+<br>
+<a href="/admin/dashboard">← Back to Dashboard</a>
+
+</body>
+</html>
+
+
+<%- include('partials/footer') %>
+
+
+
+================================================================================
+
+File: views/admin/admin-dashboard.ejs (starts at line 2430)
+
+<%- include('../partials/admin-navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Admin Panel</div>
+        <div class="nav-links">
+          <a href="/admin/dashboard">Dashboard</a>
+          <a href="/admin/add-tutor">Add Tutor</a>
+          <a href="/admin/logout">Logout</a>
+          <a href="/" class="hero-btn">← Back to Home</a>
+        </div>
+      </nav>
+<h1>Admin Dashboard - Manage Tutors</h1>
+
+<table border="1" cellpadding="10" style="margin: auto; background: white;">
+  <tr>
+    <th>Name</th>
+    <th>University</th>
+    <th>Actions</th>
+  </tr>
+
+  <table style="color: black;">
+
+  <% tutors.forEach(tutor => { %>
+    <tr>
+      <td><%= tutor.name %></td>
+      <td><%= tutor.university %></td>
+      <td>
+        <a href="/admin/edit-tutor/<%= tutor._id %>" style="margin-right: 10px;">Edit</a>
+
+        <form action="/admin/delete-tutor/<%= tutor._id %>" method="POST" style="display:inline;">
+          <button type="submit" onclick="return confirm('Are you sure you want to delete this tutor?');">Delete</button>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+</table>
+
+</body>
+</html>
+
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/admin/edit-tutor.ejs (starts at line 2488)
+
+<%- include('../partials/admin-navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Tutor</title>
+  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Admin Panel</div>
+        <div class="nav-links">
+          <a href="/admin/dashboard">Dashboard</a>
+          <a href="/admin/add-tutor">Add Tutor</a>
+          <a href="/admin/logout">Logout</a>
+        </div>
+      </nav>
+<h1>Edit Tutor</h1>
+
+<form action="/admin/edit-tutor/<%= tutor._id %>" method="POST">
+  <input type="text" name="name" value="<%= tutor.name %>" placeholder="Tutor Name" required><br><br>
+  <input type="text" name="university" value="<%= tutor.university %>" placeholder="University" required><br><br>
+  <input type="text" name="classYear" value="<%= tutor.classYear %>" placeholder="Class Year" required><br><br>
+  <textarea name="bio" rows="3" required><%= tutor.bio %></textarea><br><br>
+  <textarea name="longBio" rows="5" required><%= tutor.longBio %></textarea><br><br>
+  <textarea name="resume" rows="5"><%= tutor.resume %></textarea><br><br>
+  <input type="text" name="specialties" value="<%= tutor.specialties.join(', ') %>" placeholder="Specialties (comma separated)" required><br><br>
+  <input type="text" name="acceptedSchools" value="<%= tutor.acceptedSchools.join(', ') %>" placeholder="Accepted Schools (comma separated)" required><br><br>
+  <input type="text" name="photoUrl" value="<%= tutor.photoUrl %>" placeholder="Photo URL" required><br><br>
+  <button type="submit">Save Changes</button>
+</form>
+<br>
+<a href="/admin/dashboard">← Back to Dashboard</a>
+
+</body>
+</html>
+
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/book.ejs (starts at line 2536)
+
+<%- include('partials/navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book a Session</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">TutoringSite</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/book">Book</a>
+          <a href="/sessions">Sessions</a>
+          <a href="/tutors">Tutors</a>
+          <a href="/contact">Contact</a>
+          <a href="/admin/login">Admin Login</a>
+        </div>
+      </nav>      
+  <h1>Book a Session</h1>
+  <form action="/book" method="POST">
+    Student Name: <input name="studentName" required><br><br>
+    Tutor Name: <input name="tutorName" required><br><br>
+    Date: <input type="date" name="date" required><br><br>
+    Time: <input type="time" name="time" required><br><br>
+    <button type="submit">Book</button>
+  </form>
+  <br><a href="/">Home</a>
+</body>
+</html>
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/contact.ejs (starts at line 2579)
+
+<%- include('partials/navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TutoringSite</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/book">Book</a>
+          <a href="/sessions">Sessions</a>
+          <a href="/tutors">Tutors</a>
+          <a href="/contact">Contact</a>
+          <a href="/admin/login">Admin Login</a>
+        </div>
+      </nav>      
+  <h1>Contact Us</h1>
+  <p>Email: kkoinonos@gmail.com</p>
+  <p>Phone: US: (213) 759-9305 SG: 8338-4521</p>
+  <a href="/">Home</a>
+</body>
+</html>
+
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/index.ejs (starts at line 2617)
+
+<%- include('partials/navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TutoringSite</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/book">Book</a>
+          <a href="/sessions">Sessions</a>
+          <a href="/tutors">Tutors</a>
+          <a href="/contact">Contact</a>
+          <a href="/admin/login">Admin Login</a>
+        </div>
+      </nav>
+      <section class="hero">
+  <h1>Empower Your Learning Journey</h1>
+  <p>Connect with top university tutors and unlock your potential.</p>
+  <a href="/book" class="hero-btn">Book a Session</a>
+</section>      
+  <h1>Welcome to Our Tutoring Website</h1>
+  <a href="/book">Book a Session</a> | <a href="/contact">Contact Us</a>
+  <a href="/sessions">View Booked Sessions</a>
+</body>
+</html>
+
+<%- include('partials/footer') %>
+
+
+
+================================================================================
+
+File: views/login.ejs (starts at line 2659)
+
+<%- include('partials/navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Admin Panel</div>
+        <div class="nav-links">
+          <a href="/admin/dashboard">Dashboard</a>
+          <a href="/admin/add-tutor">Add Tutor</a>
+          <a href="/admin/logout">Logout</a>
+        </div>
+      </nav>
+
+<h1>Admin Login</h1>
+
+<form action="/admin/login" method="POST">
+  <input type="text" name="username" placeholder="Username" required><br><br>
+  <input type="password" name="password" placeholder="Password" required><br><br>
+  <button type="submit">Login</button>
+</form>
+
+</body>
+</html>
+
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/partials/admin-navbar.ejs (starts at line 2699)
+
+<nav class="navbar">
+    <div class="logo">Admin Panel</div>
+    <div class="nav-links">
+      <a href="/admin/dashboard">Dashboard</a>
+      <a href="/admin/add-tutor">Add Tutor</a>
+      <a href="/admin/logout">Logout</a>
+    </div>
+</nav>
+
+
+================================================================================
+
+File: views/partials/footer.ejs (starts at line 2715)
+
+<footer>
+    <p>© 2025 Jasper Shin. All rights reserved.</p>
+    <div>
+      <a href="/" class="footer-link">Home</a> | 
+      <a href="/tutors" class="footer-link">Tutors</a> | 
+      <a href="https://instagram.com/yourusername" target="_blank" class="footer-link">
+        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/instagram-new.png" alt="Instagram" style="vertical-align: middle; width:20px;"/> Instagram
+      </a> | 
+      <a href="https://github.com/yourusername" target="_blank" class="footer-link">
+        <img src="https://img.icons8.com/ios-glyphs/30/ffffff/github.png" alt="GitHub" style="vertical-align: middle; width:20px;"/> GitHub
+      </a>
+    </div>
+  </footer>
+  
+
+================================================================================
+
+File: views/partials/navbar.ejs (starts at line 2736)
+
+<nav class="navbar">
+    <div class="logo">TutoringSite</div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/book">Book</a>
+      <a href="/sessions">Sessions</a>
+      <a href="/tutors">Tutors</a>
+      <a href="/contact">Contact</a>
+      <a href="/admin/login">Admin Login</a>
+    </div>
+</nav>
+
+
+================================================================================
+
+File: views/sessions.ejs (starts at line 2755)
+
+<%- include('partials/navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Sessions</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TutoringSite</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/book">Book</a>
+          <a href="/sessions">Sessions</a>
+          <a href="/contact">Contact</a>
+        </div>
+      </nav>      
+  <h1>Booked Sessions</h1>
+
+  <% if (sessions.length === 0) { %>
+    <p>No sessions booked yet.</p>
+  <% } else { %>
+    <ul>
+      <% sessions.forEach(session => { %>
+        <li>
+          <strong><%= session.studentName %></strong> booked 
+          <em><%= session.tutorName %></em> on 
+          <%= session.date %> at <%= session.time %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <br>
+  <a href="/">Home</a>
+</body>
+</html>
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/tutor-profile.ejs (starts at line 2804)
+
+<%- include('partials/navbar') %>
+
+<div class="profile-container">
+  <img src="<%= tutor.photoUrl %>" alt="Profile Picture" class="profile-pic">
+  <h1><%= tutor.name %></h1>
+  <h3><%= tutor.university %> - Class of <%= tutor.classYear %></h3>
+  <p><%= tutor.longBio %></p>
+
+  <h2>Specialties</h2>
+  <ul>
+    <% tutor.specialties.forEach(subject => { %>
+      <li><%= subject %></li>
+    <% }) %>
+  </ul>
+
+  <h2>Accepted Schools</h2>
+  <ul>
+    <% tutor.acceptedSchools.forEach(school => { %>
+      <li><%= school %></li>
+    <% }) %>
+  </ul>
+
+  <a href="/tutors">← Back to Tutors</a>
+</div>
+
+<%- include('partials/footer') %>
+
+
+================================================================================
+
+File: views/tutors.ejs (starts at line 2838)
+
+<%- include('partials/navbar') %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Our Tutors</title>
+  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">TutoringSite</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/book">Book</a>
+          <a href="/sessions">Sessions</a>
+          <a href="/tutors">Tutors</a>
+          <a href="/contact">Contact</a>
+          <a href="/admin/login">Admin Login</a>
+        </div>
+      </nav>      
+<h1>Meet Our Tutors</h1>
+
+<div class="tutor-grid">
+  <% tutors.forEach(tutor => { %>
+    <div class="tutor-card">
+      <a href="/tutor/<%= tutor._id %>">
+        <img src="<%= tutor.photoUrl %>" alt="Tutor Photo">
+        <h2><%= tutor.name %></h2>
+        <h4><%= tutor.university %> - Class of <%= tutor.classYear %></h4>
+        <p><%= tutor.bio %></p>
+      </a>      
+    </div>
+  <% }) %>
+</div>
+
+
+
+</body>
+</html>
+
+<%- include('partials/footer') %>
 
 
 ================================================================================
