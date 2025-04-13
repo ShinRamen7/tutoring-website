@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book a Session</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">TutoringSite</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/book">Book</a>
+          <a href="/sessions">Sessions</a>
+          <a href="/tutors">Tutors</a>
+          <a href="/contact">Contact</a>
+          <a href="/admin/login">Admin Login</a>
+        </div>
+      </nav>      
+  <h1>Book a Session</h1>
+  <form action="/book" method="POST">
+    Student Name: <input name="studentName" required><br><br>
+    Tutor Name: <input name="tutorName" required><br><br>
+    Date: <input type="date" name="date" required><br><br>
+    Time: <input type="time" name="time" required><br><br>
+    <button type="submit">Book</button>
+  </form>
+  <br><a href="/">Home</a>
+</body>
+</html>

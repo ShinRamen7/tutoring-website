@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Tutor</title>
+  <link rel="stylesheet" href="/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Admin Panel</div>
+        <div class="nav-links">
+          <a href="/admin/dashboard">Dashboard</a>
+          <a href="/admin/add-tutor">Add Tutor</a>
+          <a href="/admin/logout">Logout</a>
+        </div>
+      </nav>
+<h1>Edit Tutor</h1>
+
+<form action="/admin/edit-tutor/<%= tutor._id %>" method="POST">
+  <input type="text" name="name" value="<%= tutor.name %>" placeholder="Tutor Name" required><br><br>
+  <input type="text" name="university" value="<%= tutor.university %>" placeholder="University" required><br><br>
+  <textarea name="bio" rows="5" required><%= tutor.bio %></textarea><br><br>
+  <input type="text" name="photoUrl" value="<%= tutor.photoUrl %>" placeholder="Photo URL" required><br><br>
+  <button type="submit">Save Changes</button>
+</form>
+<br>
+<a href="/admin/dashboard">← Back to Dashboard</a>
+
+</body>
+</html>
